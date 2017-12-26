@@ -43,7 +43,7 @@ class AwsToken(Token):
         self.s3 = boto3.resource('s3')
 
     def Load(self):
-        print("Loading token")
+        print(f"Loading {cfg.token_file} from {cfg.bucket_name}")
         obj = self.s3.Object(cfg.bucket_name, cfg.token_file)
         return pickle.loads(obj.get()['Body'].read())
 

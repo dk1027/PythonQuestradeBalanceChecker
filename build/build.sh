@@ -3,15 +3,16 @@
 # Copies contents of src and site-packages directories to build/staging/src
 # Zip everything up to build/output/package.zip
 set -e
+
+BUILD_DIR=`pwd`
+STAGING="${BUILD_DIR}/staging"
+OUT_DIR="${BUILD_DIR}/output"
+STAGE_SRC="$STAGING/src"
+ROOT_DIR=$(dirname "${BUILD_DIR}")
+LAMBDA_PACKAGE_NAME="package"
+
 build(){
   echo 'Building deployment package'
-  BUILD_DIR=`pwd`
-  STAGING="${BUILD_DIR}/staging"
-  OUT_DIR="${BUILD_DIR}/output"
-  STAGE_SRC="$STAGING/src"
-
-  ROOT_DIR=$(dirname "${BUILD_DIR}")
-
   rm -rf $STAGING
   rm -rf $OUT_DIR
   mkdir $STAGING
@@ -37,7 +38,7 @@ build(){
 
   # Create zip file
   cd $STAGE_SRC
-  zip -r "${OUT_DIR}/package" *
+  zip -r "${OUT_DIR}/${LAMBDA_PACKAGE_NAME}" *
 
   echo 'Cleaning up...'
   deactivate
@@ -47,15 +48,24 @@ build(){
 }
 
 deploy(){
-  echo 'Deploying to AWS'
+  echo "Deploying Cloudformation stack ${3}"
+  aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
+  echo 'Uploading Lambda'
+  #aws lambda update-function-code --function-name ${1} --zip-file fileb://${OUT_DIR}/${2}
+  echo 'Finished'
+}
+
+clean(){
+  echo "Deleting stack ${1}"
+  aws cloudformation delete-stack --stack-name ${1}
 }
 
 if [[ $1 == 'build' ]]; then
   build
 elif [[ $1 == 'deploy' ]]; then
-  deploy
+  deploy QuestradeBalanceCheck ${LAMBDA_PACKAGE_NAME}.zip Questrade
+elif [[ $1 == 'clean' ]]; then
+  clean Questrade
 else
   echo 'Unknown command'
 fi
-  #statements
-#

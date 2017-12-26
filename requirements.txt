@@ -1,2 +1,5 @@
+<<<<<<< HEAD
 asyncio==3.4.3
+=======
+>>>>>>> Moved source files to src directory
 requests==2.18.4

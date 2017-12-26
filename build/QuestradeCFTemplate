@@ -42,7 +42,7 @@
                         {
                             "Effect": "Allow",
                             "Action": "s3:*",
-                            "Resource": {"Fn::GetAtt" : ["QuestradeBalanceCheckerBucket", "Arn"]}
+                            "Resource": {"Fn::Join": ["/", [{"Fn::GetAtt" : ["QuestradeBalanceCheckerBucket", "Arn"]}, "*"]]}
                         }]
                 }
             }
@@ -55,14 +55,18 @@
                 "QuestradeBalanceCheckerRole"],
             "Properties" : {
                 "Code" : {
-                    "S3Bucket" : "dk1027",
-                    "S3Key" : "project-dir.zip"
-                },
+                      "ZipFile": { "Fn::Join": ["\n", [
+                          "import json",
+                          "def lambda_handler(event, context):",
+                          "    print('Not yet initialized.')"]
+                     ]}
+                 },
                 "Role" : {
                     "Fn::GetAtt" : ["QuestradeBalanceCheckerRole", "Arn"]
                 },
                 "Timeout" : 30,
-                "Handler" : "main.lambda_handler",
+                "FunctionName": "QuestradeBalanceCheck",
+                "Handler" : "index.lambda_handler",
                 "Runtime" : "python3.6",
                 "MemorySize" : 128
             }
