@@ -84,14 +84,15 @@ class QuestradeDatasourceManager:
     
     def __enter__(self):
         # Load tokens, connect, and save next set of refresh tokens
-        refresh_tokens = Token.Load()
+        token = Token.MakeToken()
+        refresh_tokens = token.Load()
         new_refresh_tokens = []
         ds = []
         for tok in refresh_tokens:
             aDs = QuestradeDatasource(tok)
             ds.append(aDs)
             new_refresh_tokens.append(aDs.GetRefreshToken())
-        Token.Save(new_refresh_tokens)
+        token.Save(new_refresh_tokens)
         return ds
     
     def __exit__(self, type, value, traceback):

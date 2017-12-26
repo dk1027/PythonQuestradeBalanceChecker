@@ -1,0 +1,71 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description" : "Questrade Balance Checker Stack",
+    "Resources" : {
+        "QuestradeBalanceCheckerRole" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : ["lambda.amazonaws.com"]
+                            },
+                            "Action" : ["sts:AssumeRole"]
+                        }]
+                },
+                "Path" : "/"
+            }
+        },
+        "QuestradeBalanceCheckerBucket" : {
+          "Type" : "AWS::S3::Bucket",
+          "Properties" : {
+              "AccessControl" : "BucketOwnerFullControl",
+              "BucketName" : "questrade-balance-checker-bucket"
+          }
+        },
+        "QuestradeBalanceCheckerPolicy" : {
+            "DependsOn" : [
+                "QuestradeBalanceCheckerRole"
+            ],
+            "Type" : "AWS::IAM::Policy",
+            "Properties" : {
+                "PolicyName" : "QuestradeBalanceCheckerPolicy",
+                "Roles" : [
+                    {"Ref" : "QuestradeBalanceCheckerRole"}
+                ],
+                "PolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect": "Allow",
+                            "Action": "s3:*",
+                            "Resource": {"Fn::GetAtt" : ["QuestradeBalanceCheckerBucket", "Arn"]}
+                        }]
+                }
+            }
+        },
+        "QuestradeLambda" : {
+            "Type" : "AWS::Lambda::Function",
+            "DependsOn" : [
+                "QuestradeBalanceCheckerBucket",
+                "QuestradeBalanceCheckerPolicy",
+                "QuestradeBalanceCheckerRole"],
+            "Properties" : {
+                "Code" : {
+                    "S3Bucket" : "dk1027",
+                    "S3Key" : "project-dir.zip"
+                },
+                "Role" : {
+                    "Fn::GetAtt" : ["QuestradeBalanceCheckerRole", "Arn"]
+                },
+                "Timeout" : 30,
+                "Handler" : "main.lambda_handler",
+                "Runtime" : "python3.6",
+                "MemorySize" : 128
+            }
+        }
+    }
+}

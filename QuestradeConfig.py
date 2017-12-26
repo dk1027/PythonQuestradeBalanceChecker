@@ -7,6 +7,7 @@ target_allocation = [
 	['WORLD', 0.28]]
 
 # pickle file containing refresh tokens
+bucket_name = 'dk1027'
 token_file = 'tokens'
 
 symbol_category_mapping = {
@@ -26,4 +27,4 @@ symbol_category_mapping = {
 }
 
 # if the actual balance goes beyond the threshold then a rebalance is necessary
-threshold = 0.002
+threshold = 0.005
