@@ -1,0 +1,10 @@
+.env
+.Python
+bin/
+build/output/
+build/staging/
+include/
+lib/
+pip-selfcheck.json
+src/tokens
+src/__pycache__

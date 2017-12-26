@@ -10,6 +10,7 @@ import datetime
 from FuncUtils import *
 from functools import partial
 
+
 class BalanceActor:
     def __init__(self):
         self._loop = asyncio.get_event_loop()
@@ -18,25 +19,25 @@ class BalanceActor:
 
     def Start(self):
         self._loop.run_until_complete(self._run())
-    
+
     async def _run(self):
         target_allocation = pd.DataFrame(
             cfg.target_allocation,
-            columns=['category','targetAllocation'])
+            columns=['category', 'targetAllocation'])
 
         def Handler(x):
             self.df = pd.concat([self.df, x])
-            
+
         target_allocation = pd.DataFrame(
             cfg.target_allocation,
-            columns=['category','targetAllocation'])
-        
+            columns=['category', 'targetAllocation'])
+
         with QuestradeDatasourceManager() as ds:
             print("Time now: ", datetime.datetime.now())
             await AsyncRunAll(self._loop, [MakeFunc(aDs.GetPositions, Handler) for aDs in ds])
             print("Time now: ", datetime.datetime.now())
             df = self.df
-            t1 = df.groupby(['time','category']).agg({'currentMarketValue' : np.sum}).reset_index()
+            t1 = df.groupby(['time', 'category']).agg({'currentMarketValue': np.sum}).reset_index()
             temp = t1
             temp['actual'] = temp['currentMarketValue']
             temp_sum = temp['actual'].sum()
@@ -56,7 +57,14 @@ class BalanceActor:
             self.results = temp
             self.needRebalance = needRebalance
 
+
 def lambda_handler(event, context):
     a = BalanceActor()
     a.Start()
     return (a.needRebalance, a.results.to_csv())
+
+
+if __name__ == '__main__':
+    print("Running as command line...")
+    needRebalance, csv = lambda_handler(None, None)
+    print(csv)
