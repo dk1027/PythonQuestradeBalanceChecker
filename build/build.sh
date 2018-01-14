@@ -49,9 +49,9 @@ build(){
 
 deploy(){
   echo "Deploying Cloudformation stack ${3}"
-  aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
+  #aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
   echo 'Uploading Lambda'
-   aws lambda update-function-code --function-name ${1} --zip-file fileb://${OUT_DIR}/${2}
+  aws lambda update-function-code --function-name ${1} --zip-file fileb://${OUT_DIR}/${2}
   echo 'Finished'
 }
 

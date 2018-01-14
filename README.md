@@ -2,8 +2,8 @@
 The token file is a pickled Python list that holds the Questrade access tokens.
 Use the following code to generate the inital token file. After the initial manual generation, subsequent tokens are saved automatically.
 ```
-from QuestradeToken import Token
-Token.Save(['your-questrade-token', 'more-tokens-for-multiple-accounts'])
+from QuestradeToken import LocalToken
+LocalToken().Save(['your-questrade-token', 'more-tokens-for-multiple-accounts'])
 ```
 
 ## Setup
