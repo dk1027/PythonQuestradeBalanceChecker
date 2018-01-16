@@ -3,7 +3,7 @@
 # Copies contents of src and site-packages directories to build/staging/src
 # Zip everything up to build/output/package.zip
 set -e
-
+echo "Using Profile ${AWS_PROFILE}"
 BUILD_DIR=`pwd`
 STAGING="${BUILD_DIR}/staging"
 OUT_DIR="${BUILD_DIR}/output"
@@ -49,7 +49,7 @@ build(){
 
 deploy(){
   echo "Deploying Cloudformation stack ${3}"
-  #aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
+  aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
   echo 'Uploading Lambda'
   aws lambda update-function-code --function-name ${1} --zip-file fileb://${OUT_DIR}/${2}
   echo 'Finished'

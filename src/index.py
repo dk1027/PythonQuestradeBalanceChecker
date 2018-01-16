@@ -61,6 +61,7 @@ class BalanceActor:
 def lambda_handler(event, context):
     a = BalanceActor()
     a.Start()
+    print(a.results.to_csv())
     return (a.needRebalance, a.results.to_csv())
 
 

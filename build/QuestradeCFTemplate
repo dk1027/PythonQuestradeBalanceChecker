@@ -43,6 +43,24 @@
                             "Effect": "Allow",
                             "Action": "s3:*",
                             "Resource": {"Fn::Join": ["/", [{"Fn::GetAtt" : ["QuestradeBalanceCheckerBucket", "Arn"]}, "*"]]}
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": {"Fn::Join": [":", ["arn:aws:logs", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"}, "log-group", "/aws/lambda/QuestradeBalanceCheck", "*"]]}
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": {"Fn::Join": [":", ["arn:aws:logs", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"}, "*"]]}
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "sns:*",
+                            "Resource": "*"
                         }]
                 }
             }
@@ -64,7 +82,7 @@
                 "Role" : {
                     "Fn::GetAtt" : ["QuestradeBalanceCheckerRole", "Arn"]
                 },
-                "Timeout" : 30,
+                "Timeout" : 60,
                 "FunctionName": "QuestradeBalanceCheck",
                 "Handler" : "index.lambda_handler",
                 "Runtime" : "python3.6",
