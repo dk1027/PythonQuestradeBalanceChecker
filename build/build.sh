@@ -47,12 +47,20 @@ build(){
   echo 'Finished'
 }
 
+add(){
+  echo "Adding ${1}"
+  cd ${BUILD_DIR}/../src
+  zip -rv ${OUT_DIR}/${LAMBDA_PACKAGE_NAME}.zip ${1}
+}
+
 deploy(){
-  echo "Deploying Cloudformation stack ${3}"
-  aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${3} --capabilities CAPABILITY_IAM
+  echo "Deploying Cloudformation stack ${1}"
+  aws cloudformation deploy --template-file QuestradeCFTemplate --stack-name ${1} --capabilities CAPABILITY_IAM
+}
+
+upload_lambda(){
   echo 'Uploading Lambda'
   aws lambda update-function-code --function-name ${1} --zip-file fileb://${OUT_DIR}/${2}
-  echo 'Finished'
 }
 
 clean(){
@@ -63,9 +71,21 @@ clean(){
 if [[ $1 == 'build' ]]; then
   build
 elif [[ $1 == 'deploy' ]]; then
-  deploy QuestradeBalanceCheck ${LAMBDA_PACKAGE_NAME}.zip Questrade
+  if [[ $* == *--only-cf* ]]; then
+    echo "Only deploy cloud formation"
+    deploy Questrade
+  elif [[ $* == *--only-upload* ]]; then
+    echo "Only upload lambda package"
+    upload_lambda QuestradeBalanceCheck ${LAMBDA_PACKAGE_NAME}.zip
+  else
+    deploy Questrade
+    upload_lambda QuestradeBalanceCheck ${LAMBDA_PACKAGE_NAME}.zip
+  fi
+  echo 'Finished'
 elif [[ $1 == 'clean' ]]; then
   clean Questrade
+elif [[ $1 == 'add' ]]; then
+  add $2
 else
   echo 'Unknown command'
 fi

@@ -88,6 +88,19 @@
                 "Runtime" : "python3.6",
                 "MemorySize" : 128
             }
+        },
+        "QuestradeSNS":{
+          "Type":"AWS::SNS::Topic",
+          "Properties":{
+            "DisplayName": "QuestradeSNS",
+            "Subscription":[
+              {
+                "Endpoint":"dk1027+aws@gmail.com",
+                "Protocol":"email"
+              }
+            ],
+            "TopicName": "Questrade"
+          }
         }
     }
 }

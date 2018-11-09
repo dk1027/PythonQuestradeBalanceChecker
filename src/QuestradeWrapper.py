@@ -19,6 +19,7 @@ class Context:
             return Context(j['api_server'], j['access_token'], j['refresh_token'])
         else:
             print("status_code:{} reason: {}".format(r.status_code, r.text))
+            print(r.json())
             return None
 
     # Use the next refresh token to create a new context

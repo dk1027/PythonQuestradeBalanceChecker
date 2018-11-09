@@ -4,6 +4,7 @@ from QuestradeDatasource import QuestradeDatasource
 from QuestradeDatasource import QuestradeDatasourceManager
 import QuestradeConfig as cfg
 import asyncio
+import boto3
 import requests
 import time
 import datetime
@@ -59,10 +60,23 @@ class BalanceActor:
 
 
 def lambda_handler(event, context):
-    a = BalanceActor()
-    a.Start()
-    print(a.results.to_csv())
-    return (a.needRebalance, a.results.to_csv())
+    sns = boto3.client("sns")
+    region = context.invoked_function_arn.split(":")[3]
+    account_id = context.invoked_function_arn.split(":")[4]
+    topicArn = f"arn:aws:sns:{region}:{account_id}:Questrade"
+    try:
+        a = BalanceActor()
+        a.Start()
+        print(a.results.to_csv())
+        sns.publish(
+            TargetArn=topicArn,
+            Message=a.results[['category', 'currentMarketValue', 'rebalanceAmount', 'needRebalance']].to_csv(header=True, sep='\t', float_format='%.0f'))
+        return (a.needRebalance, a.results.to_csv())
+    except Exception:
+        print("An error has occurred")
+
+    sns.publish(TargetArn=topicArn, Message="Failed to get quotes.")
+    return False
 
 
 if __name__ == '__main__':
